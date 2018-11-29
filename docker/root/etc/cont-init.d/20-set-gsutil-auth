@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv bash
+
+printf "$GOOGLE_APPLICATION_CREDENTIALS\nY\n$PROJECT_ID\nN\n" | gsutil config -e

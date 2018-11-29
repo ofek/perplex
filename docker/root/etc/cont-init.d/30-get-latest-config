@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+
+if [[ ! -e "/config/Library" ]]; then
+    rm -rf /config/Library
+    if gsutil cp gs://$BUCKET_METADATA/pms_config-latest.tar.gz /tmp/pms_config-latest.tar.gz; then
+        tar -xf /tmp/pms_config-latest.tar.gz -C /config/
+    fi
+fi

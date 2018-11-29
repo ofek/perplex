@@ -1,0 +1,36 @@
+dist: xenial
+language: python
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+branches:
+  only:
+    - master
+
+matrix:
+  include:
+    - python: 3.6
+      env: TOXENV=style
+    - python: 3.6
+      env: TOXENV=docs
+
+install:
+  - pip install tox
+
+script:
+  - tox
+
+deploy:
+  provider: pages
+  github-token: $GITHUB_TOKEN
+  committer-from-gh: true
+  # keep-history: true
+  local-dir: site
+  skip-cleanup: true
+  verbose: true
+  on:
+    repo: ofek/perplex
+    branch: master
+    condition: $TOXENV = docs
