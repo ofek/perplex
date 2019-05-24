@@ -1,3 +1,5 @@
+import os
+
 import click
 
 from .commands import ALL_COMMANDS
@@ -24,6 +26,9 @@ def perplex(ctx):
 
     # Load and store configuration for sub-commands.
     ctx.obj = load_config()
+
+    #
+    os.environ['COMPOSE_CONVERT_WINDOWS_PATHS'] = '1'
 
 
 for command in ALL_COMMANDS:

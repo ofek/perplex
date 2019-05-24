@@ -49,15 +49,28 @@ class DockerCompose:
         return {
             'version': '3',
             'services': {
-                self.instance_name: {
-                    'image': self.instance['image'],
-                    'container_name': CONTAINER_NAME,
+                f'{self.instance_name}-plex': {
+                    'image': 'plexinc/pms-docker:1.15.3.876-ad6e39743',
+                    'container_name': f'{self.instance_name}-plex',
+                    'privileged': True,
                     # FUSE needs device
                     'devices': ['/dev/fuse'],
                     # FUSE needs extra capabilities. See:
                     # https://github.com/s3fs-fuse/s3fs-fuse/issues/647#issuecomment-392697838
-                    'cap_add': ['SYS_ADMIN'],
+                    'cap_add': ['SYS_ADMIN', 'MKNOD'],
                     'ports': ['32400:32400'],
+                    'environment': [f'TZ={self.instance["time_zone"]}'],
+                    'volumes': [f'//:/rootfs'],
+                },
+                self.instance_name: {
+                    'image': self.instance['image'],
+                    'container_name': self.instance_name,
+                    'privileged': True,
+                    # FUSE needs device
+                    'devices': ['/dev/fuse'],
+                    # FUSE needs extra capabilities. See:
+                    # https://github.com/s3fs-fuse/s3fs-fuse/issues/647#issuecomment-392697838
+                    'cap_add': ['SYS_ADMIN', 'MKNOD'],
                     'environment': [
                         'BOTO_CONFIG=/home/.boto',
                         f'TZ={self.instance["time_zone"]}',
@@ -67,8 +80,9 @@ class DockerCompose:
                         f'GOOGLE_APPLICATION_CREDENTIALS=/home/secrets/{SERVICE_ACCOUNT_STORAGE_KEY_FILE}',
                     ],
                     'volumes': [
-                        f'./{SERVICE_ACCOUNT_STORAGE_KEY_FILE}:/home/secrets/{SERVICE_ACCOUNT_STORAGE_KEY_FILE}'
+                        f'./{SERVICE_ACCOUNT_STORAGE_KEY_FILE}:/home/secrets/{SERVICE_ACCOUNT_STORAGE_KEY_FILE}',
+                        f'//:/rootfs',
                     ],
-                }
+                },
             },
         }

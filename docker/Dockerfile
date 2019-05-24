@@ -1,17 +1,21 @@
-ARG PLEX_VERSION=1.15.3.876-ad6e39743
-FROM plexinc/pms-docker:${PLEX_VERSION}
+FROM ubuntu:19.04
 
 # Upgrade system and install required packages
 RUN apt-get update \
  && apt-get --no-install-recommends -y install \
+      ca-certificates \
       cron \
+      curl \
       fuse \
       gcc \
+      gpg \
+      gpg-agent \
       libffi-dev \
       libfuse-dev \
       libssl-dev \
       locales \
       python-dev \
+      tzdata \
  # Clean up
  && apt-get -y autoremove \
  && apt-get -y clean \
@@ -32,12 +36,10 @@ ENV GIMME_OS linux
 ENV GIMME_ROOT /home/.gimme
 ENV GOPATH /home/go
 ENV GOROOT ${GIMME_ROOT}/versions/go${GIMME_GO_VERSION}.${GIMME_OS}.${GIMME_ARCH}
+ENV HOME /home
 ENV PATH ${PATH}:${GOPATH}/bin:${GOROOT}/bin
 ENV S6_VERSION v1.22.1.0
 ENV STORAGE_UTIL_VERSION 4.38
-
-# Temporarily overwrite HOME
-ENV HOME /home
 
 # Get newer S6 overlay
 RUN curl -sSLO https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz \
@@ -73,9 +75,6 @@ RUN apt-get update \
 RUN curl -sSL https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py | python \
  # Install gsutil to manage Plex metadata/database snapshots
  && pip install gsutil==${STORAGE_UTIL_VERSION}
-
-# Reset HOME https://github.com/plexinc/pms-docker/blob/155f00c71b50f94c73ffea0aae16cc61ef957df7/Dockerfile#L46
-ENV HOME /config
 
 COPY root /
 
